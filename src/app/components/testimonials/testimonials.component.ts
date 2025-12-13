@@ -23,37 +23,47 @@ interface Testimonial {
 export class TestimonialsComponent implements OnInit {
   testimonialsVisible = false;
 
-  // Avis exemples (à remplacer par de vrais avis plus tard)
+  // Avis clients fictifs Google My Business
   testimonials: Testimonial[] = [
     {
       id: 1,
-      name: 'Sophie Martin',
-      role: 'Directrice',
-      company: 'Boutique en ligne',
+      name: 'Claire Rousseau',
+      role: 'Fondatrice',
+      company: 'Cabinet de Coaching',
       rating: 5,
-      comment: 'Excellent travail ! Le site WordPress est exactement ce que je voulais. Facile à gérer et très professionnel. Je recommande vivement !',
+      comment: 'Grâce à son expertise sur Notion et Make, j\'ai gagné 10h par semaine ! Mon workflow est complètement automatisé et mes clients adorent le nouveau système de réservation. Un vrai game-changer pour mon activité.',
       source: 'google',
-      date: 'Il y a 2 mois'
+      date: 'Il y a 2 semaines'
     },
     {
       id: 2,
-      name: 'Jean Dupont',
-      role: 'CEO',
-      company: 'StartUp Tech',
+      name: 'Thomas Dubois',
+      role: 'Directeur',
+      company: 'E-commerce Mode',
       rating: 5,
-      comment: 'Application Angular parfaitement développée. Code propre, bien documenté et livré dans les délais. Un vrai professionnel !',
-      source: 'malt',
+      comment: 'Une assistante digitale au top ! Elle a créé tous mes visuels sur Canva, automatisé mes publications Instagram et organisé mon espace Notion. Réactivité exceptionnelle et résultats visibles immédiatement.',
+      source: 'google',
       date: 'Il y a 1 mois'
     },
     {
       id: 3,
-      name: 'Marie Lambert',
-      role: 'Responsable Marketing',
-      company: 'Agence Créative',
+      name: 'Émilie Garnier',
+      role: 'Consultante',
+      company: 'Freelance Marketing',
       rating: 5,
-      comment: 'Très satisfaite du site vitrine. Design moderne, responsive et SEO optimisé. La formation pour gérer le contenu était très claire.',
+      comment: 'J\'étais débordée avec ma gestion admin. Maintenant tout est fluide : facturation automatique, planning organisé, emails triés. Je peux enfin me concentrer sur mes clients. Je recommande à 100% !',
       source: 'google',
       date: 'Il y a 3 semaines'
+    },
+    {
+      id: 4,
+      name: 'Marc Lefebvre',
+      role: 'CEO',
+      company: 'Startup SaaS',
+      rating: 5,
+      comment: 'Son accompagnement sur Make a transformé notre productivité. Tous nos outils sont connectés, plus besoin de saisir les données 3 fois. Un ROI incroyable dès le premier mois !',
+      source: 'google',
+      date: 'Il y a 5 jours'
     }
   ];
 

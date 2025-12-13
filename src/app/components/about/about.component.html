@@ -1,123 +1,153 @@
 <section id="about" class="py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
   <!-- Particules flottantes -->
   <div class="absolute inset-0">
-    <div class="absolute top-10 left-10 w-32 h-32 bg-blue-300/20 rounded-full animate-float"></div>
-    <div class="absolute bottom-20 right-20 w-48 h-48 bg-purple-300/20 rounded-full animate-float-delay"></div>
-    <div class="absolute top-1/2 right-1/3 w-24 h-24 bg-pink-300/20 rounded-full animate-float-slow"></div>
+    <div class="absolute top-10 left-10 w-32 h-32 bg-gold-300/20 rounded-full animate-float"></div>
+    <div class="absolute bottom-20 right-20 w-48 h-48 bg-beige-300/20 rounded-full animate-float-delay"></div>
+    <div class="absolute top-1/2 right-1/3 w-24 h-24 bg-gold-400/20 rounded-full animate-float-slow"></div>
   </div>
 
   <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
       <div class="text-center mb-12 animate-fade-in">
-        <h2 class="section-title">À propos</h2>
-        <p class="section-subtitle">Développeur web freelance passionné par les technologies modernes</p>
+        <h2 class="section-title">Mes Outils & Expertises</h2>
+        <p class="section-subtitle">Une maîtrise complète des outils modernes pour optimiser votre productivité</p>
       </div>
 
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 md:p-12 mb-12 transform hover:scale-105 transition-all duration-500 animate-slide-up">
         <p class="text-lg text-gray-700 leading-relaxed mb-6">
-          Développeur web freelance spécialisé en <strong class="text-blue-600">WordPress</strong>,
-          <strong class="text-blue-600">Java</strong>, <strong class="text-blue-600">Spring Boot</strong> et
-          <strong class="text-blue-600">Angular 17+</strong>,
-          j'accompagne les TPE/PME, indépendants et clients B2B dans leurs projets de développement web.
+          Assistante virtuelle & digitale spécialisée dans l'<strong class="text-gold-700">automatisation</strong>,
+          l'<strong class="text-gold-700">organisation</strong> et la <strong class="text-gold-700">gestion de contenus</strong>,
+          j'accompagne les entrepreneurs, TPE/PME et professionnels indépendants dans leur transformation digitale.
         </p>
         <p class="text-lg text-gray-700 leading-relaxed">
-          Que ce soit pour un site vitrine administrable ou une application métier sur mesure, je m'engage à livrer
-          des solutions de qualité professionnelle, maintenables et évolutives.
+          Grâce à des outils comme <strong class="text-gold-600">Notion</strong>, <strong class="text-gold-600">Make</strong>
+          et <strong class="text-gold-600">Canva</strong>, je vous aide à gagner du temps et à vous concentrer sur ce qui compte vraiment :
+          développer votre activité.
         </p>
       </div>
 
-      <!-- Compétences techniques avec animations -->
+      <!-- Outils avec animations et icônes -->
       <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 md:p-12 animate-slide-up" style="animation-delay: 0.2s">
-        <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Compétences Techniques
+        <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center bg-gradient-to-r from-gold-500 to-gold-700 bg-clip-text text-transparent">
+          Mes Outils de Prédilection
         </h3>
 
-        <div class="space-y-6">
-          <!-- Backend -->
+        <div class="space-y-8">
+          <!-- Organisation & Productivité -->
           <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">💻</span>
-              Backend
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+              <span class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-3 text-white text-xl shadow-lg transform hover:rotate-12 transition-transform">
+                📋
+              </span>
+              Organisation & Productivité
             </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('backend')"
-                    class="skill-badge bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 hover:from-blue-200 hover:to-blue-300">
+            <div class="flex flex-wrap gap-3">
+              <span *ngFor="let skill of getSkillsByCategory('organisation')"
+                    class="skill-badge bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 hover:from-gold-200 hover:to-gold-300 hover:scale-110 transform transition-all duration-300 shadow-md hover:shadow-xl">
+                <span class="text-lg mr-1">{{ skill.icon }}</span>
                 {{ skill.name }}
               </span>
             </div>
           </div>
 
-          <!-- Frontend -->
+          <!-- Automatisation & Workflows -->
           <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">🎨</span>
-              Frontend
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+              <span class="w-10 h-10 bg-gradient-to-br from-gold-600 to-gold-700 rounded-xl flex items-center justify-center mr-3 text-white text-xl shadow-lg transform hover:rotate-12 transition-transform">
+                ⚡
+              </span>
+              Automatisation & Workflows
             </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('frontend')"
-                    class="skill-badge bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 hover:from-purple-200 hover:to-purple-300">
+            <div class="flex flex-wrap gap-3">
+              <span *ngFor="let skill of getSkillsByCategory('automatisation')"
+                    class="skill-badge bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 hover:from-gold-300 hover:to-gold-400 hover:scale-110 transform transition-all duration-300 shadow-md hover:shadow-xl">
+                <span class="text-lg mr-1">{{ skill.icon }}</span>
                 {{ skill.name }}
               </span>
             </div>
           </div>
 
-          <!-- CMS -->
+          <!-- Design & Création -->
           <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">🌐</span>
-              CMS
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+              <span class="w-10 h-10 bg-gradient-to-br from-beige-700 to-beige-800 rounded-xl flex items-center justify-center mr-3 text-white text-xl shadow-lg transform hover:rotate-12 transition-transform">
+                🎨
+              </span>
+              Design & Création
             </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('cms')"
-                    class="skill-badge bg-gradient-to-r from-green-100 to-green-200 text-green-800 hover:from-green-200 hover:to-green-300">
+            <div class="flex flex-wrap gap-3">
+              <span *ngFor="let skill of getSkillsByCategory('design')"
+                    class="skill-badge bg-gradient-to-r from-pink-100 to-pink-200 text-pink-800 hover:from-beige-300 hover:to-beige-400 hover:scale-110 transform transition-all duration-300 shadow-md hover:shadow-xl">
+                <span class="text-lg mr-1">{{ skill.icon }}</span>
                 {{ skill.name }}
               </span>
             </div>
           </div>
 
-          <!-- Database -->
+          <!-- Réseaux Sociaux -->
           <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-2">🗄️</span>
-              Base de données
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+              <span class="w-10 h-10 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl flex items-center justify-center mr-3 text-white text-xl shadow-lg transform hover:rotate-12 transition-transform">
+                📱
+              </span>
+              Réseaux Sociaux & Marketing
             </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('database')"
-                    class="skill-badge bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 hover:from-orange-200 hover:to-orange-300">
+            <div class="flex flex-wrap gap-3">
+              <span *ngFor="let skill of getSkillsByCategory('social')"
+                    class="skill-badge bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 hover:from-gold-200 hover:to-gold-300 hover:scale-110 transform transition-all duration-300 shadow-md hover:shadow-xl">
+                <span class="text-lg mr-1">{{ skill.icon }}</span>
                 {{ skill.name }}
               </span>
             </div>
           </div>
 
-          <!-- DevOps & Tools -->
+          <!-- Communication & Collaboration -->
           <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-2">⚙️</span>
-              DevOps & Tools
-            </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('devops').concat(getSkillsByCategory('tools'))"
-                    class="skill-badge bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800 hover:from-indigo-200 hover:to-indigo-300">
-                {{ skill.name }}
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+              <span class="w-10 h-10 bg-gradient-to-br from-beige-600 to-beige-700 rounded-xl flex items-center justify-center mr-3 text-white text-xl shadow-lg transform hover:rotate-12 transition-transform">
+                💬
               </span>
-            </div>
-          </div>
-
-          <!-- Testing -->
-          <div class="transform hover:translate-x-2 transition-all duration-300">
-            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-              <span class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-2">✅</span>
-              Tests
+              Communication & Collaboration
             </h4>
-            <div class="flex flex-wrap gap-2">
-              <span *ngFor="let skill of getSkillsByCategory('testing')"
-                    class="skill-badge bg-gradient-to-r from-red-100 to-red-200 text-red-800 hover:from-red-200 hover:to-red-300">
+            <div class="flex flex-wrap gap-3">
+              <span *ngFor="let skill of getSkillsByCategory('communication')"
+                    class="skill-badge bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800 hover:from-beige-300 hover:to-beige-400 hover:scale-110 transform transition-all duration-300 shadow-md hover:shadow-xl">
+                <span class="text-lg mr-1">{{ skill.icon }}</span>
                 {{ skill.name }}
               </span>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Section Valeur Ajoutée -->
+      <div class="mt-12 grid md:grid-cols-3 gap-6 animate-fade-in-up" style="animation-delay: 0.4s">
+        <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-gold-500">
+          <div class="text-4xl mb-4">🚀</div>
+          <h4 class="text-xl font-bold text-gray-900 mb-2">Gain de temps</h4>
+          <p class="text-gray-600">
+            Automatisez vos tâches répétitives et concentrez-vous sur votre cœur de métier.
+          </p>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-gold-500">
+          <div class="text-4xl mb-4">💡</div>
+          <h4 class="text-xl font-bold text-gray-900 mb-2">Organisation optimale</h4>
+          <p class="text-gray-600">
+            Des workflows personnalisés pour une gestion fluide de vos projets et équipes.
+          </p>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-t-4 border-beige-700">
+          <div class="text-4xl mb-4">📈</div>
+          <h4 class="text-xl font-bold text-gray-900 mb-2">Visibilité accrue</h4>
+          <p class="text-gray-600">
+            Développez votre présence en ligne avec une stratégie de contenu cohérente.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+

@@ -10,24 +10,27 @@ import { CommonModule } from '@angular/common';
 })
 export class AboutComponent {
   skills = [
-    { name: 'Java 8 / 17 / 21', category: 'backend' },
-    { name: 'Spring Boot', category: 'backend' },
-    { name: 'Spring Security', category: 'backend' },
-    { name: 'Spring Data JPA', category: 'backend' },
-    { name: 'Hibernate', category: 'backend' },
-    { name: 'Spring Batch', category: 'backend' },
-    { name: 'Angular 17+', category: 'frontend' },
-    { name: 'HTML5 / CSS3', category: 'frontend' },
-    { name: 'TailwindCSS', category: 'frontend' },
-    { name: 'TypeScript', category: 'frontend' },
-    { name: 'WordPress', category: 'cms' },
-    { name: 'ACF Pro', category: 'cms' },
-    { name: 'Git / GitHub / GitLab', category: 'tools' },
-    { name: 'Docker / docker-compose', category: 'devops' },
-    { name: 'GitHub Actions', category: 'devops' },
-    { name: 'MySQL / PostgreSQL', category: 'database' },
-    { name: 'JUnit / Mockito', category: 'testing' },
-    { name: 'Cypress E2E', category: 'testing' }
+    { name: 'Notion', category: 'organisation', icon: '📝' },
+    { name: 'Google Workspace', category: 'organisation', icon: '📧' },
+    { name: 'Trello', category: 'organisation', icon: '📋' },
+    { name: 'Asana', category: 'organisation', icon: '✅' },
+    { name: 'ClickUp', category: 'organisation', icon: '🎯' },
+    { name: 'Monday.com', category: 'organisation', icon: '📊' },
+    { name: 'Make (Integromat)', category: 'automatisation', icon: '⚡' },
+    { name: 'Zapier', category: 'automatisation', icon: '🔗' },
+    { name: 'n8n', category: 'automatisation', icon: '🤖' },
+    { name: 'Airtable', category: 'automatisation', icon: '🗃️' },
+    { name: 'Canva Pro', category: 'design', icon: '🎨' },
+    { name: 'Figma', category: 'design', icon: '✏️' },
+    { name: 'Adobe Express', category: 'design', icon: '🖼️' },
+    { name: 'Meta Business Suite', category: 'social', icon: '📱' },
+    { name: 'Buffer', category: 'social', icon: '📅' },
+    { name: 'Later', category: 'social', icon: '⏰' },
+    { name: 'Hootsuite', category: 'social', icon: '🦉' },
+    { name: 'Slack', category: 'communication', icon: '💬' },
+    { name: 'Microsoft Teams', category: 'communication', icon: '👥' },
+    { name: 'Discord', category: 'communication', icon: '🎮' },
+    { name: 'Zoom', category: 'communication', icon: '🎥' }
   ];
 
   getSkillsByCategory(category: string) {

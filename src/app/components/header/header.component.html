@@ -6,9 +6,9 @@
     <div class="flex justify-between items-center h-16 md:h-20">
       <!-- Logo avec animation -->
       <div class="flex-shrink-0 animate-fade-in">
-        <a (click)="scrollToSection('home')" class="text-xl md:text-2xl font-bold text-blue-600 hover:text-blue-700 transition-all duration-300 cursor-pointer hover:scale-105 inline-block">
-          <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Mon Entreprise
+        <a (click)="scrollToSection('home')" class="text-xl md:text-2xl font-bold text-gold-600 hover:text-gold-700 transition-all duration-300 cursor-pointer hover:scale-105 inline-block">
+          <span class="bg-gradient-to-r from-gold-500 via-gold-600 to-beige-700 bg-clip-text text-transparent">
+            ✨ Assistante Digitale
           </span>
         </a>
       </div>
@@ -37,7 +37,7 @@
           (click)="scrollToSection('about')"
           class="nav-link"
         >
-          À propos
+          Outils
         </a>
         <a
           (click)="scrollToSection('contact')"
@@ -51,7 +51,7 @@
       <div class="md:hidden">
         <button
           (click)="toggleMobileMenu()"
-          class="text-gray-700 hover:text-blue-600 focus:outline-none transition-all duration-300 hover:scale-110"
+          class="text-gray-700 hover:text-gold-600 focus:outline-none transition-all duration-300 hover:scale-110"
         >
           <svg class="h-6 w-6 transition-transform duration-300" [class.rotate-90]="mobileMenuOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -71,31 +71,31 @@
       <div class="space-y-2 pt-2">
         <a
           (click)="scrollToSection('home')"
-          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
+          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-gold-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
         >
           Accueil
         </a>
         <a
           (click)="scrollToSection('services')"
-          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
+          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-gold-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
         >
           Services
         </a>
         <a
           (click)="scrollToSection('process')"
-          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
+          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-gold-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
         >
           Process
         </a>
         <a
           (click)="scrollToSection('about')"
-          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
+          class="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-gold-600 rounded-lg cursor-pointer transition-all duration-300 hover:translate-x-2"
         >
-          À propos
+          Outils
         </a>
         <a
           (click)="scrollToSection('contact')"
-          class="block px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-lg cursor-pointer transition-all duration-300 text-center font-semibold hover:scale-105"
+          class="block px-4 py-3 bg-gradient-to-r from-gold-500 to-gold-700 text-white hover:from-blue-700 hover:to-purple-700 rounded-lg cursor-pointer transition-all duration-300 text-center font-semibold hover:scale-105"
         >
           Contact
         </a>
@@ -103,3 +103,5 @@
     </div>
   </nav>
 </header>
+
+
