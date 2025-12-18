@@ -1,167 +1,50 @@
+/**
+ * ============================================================================
+ * Elilouche Assistante Digitale - Backend API Server
+ * ============================================================================
+ *
+ * @copyright 2025 nonodevco - Tous droits réservés
+ * @author    nonodevco (https://nonodevco.com)
+ * @license   Propriétaire - Reproduction et distribution interdites
+ *
+ * Ce code source est la propriété exclusive de nonodevco.
+ * Toute reproduction, modification, distribution ou utilisation
+ * non autorisée de ce code est strictement interdite.
+ *
+ * ============================================================================
+ */
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
+const fs = require('fs');
 const stripe = require('stripe')(
   process.env.STRIPE_MODE === 'live'
     ? process.env.STRIPE_SECRET_KEY_LIVE
     : process.env.STRIPE_SECRET_KEY_TEST
 );
 
+// Import des services
+const { sendEmail, notifyAdmin, emailTemplates } = require('./services/emailService');
+const { generateInvoiceNumber, generateInvoicePDF, invoicesDir } = require('./services/invoiceService');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ====== CONFIGURATION EMAIL ======
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD // Mot de passe d'application Gmail
-  }
-});
-
-// Fonction pour envoyer un email
-async function sendEmail(to, subject, htmlContent) {
-  try {
-    const mailOptions = {
-      from: `"Assistante Digitale" <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      html: htmlContent
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Email envoyé: ${info.messageId}`);
-    return true;
-  } catch (error) {
-    console.error('❌ Erreur envoi email:', error);
-    return false;
-  }
-}
-
-// Fonction pour notifier l'admin (vous)
-async function notifyAdmin(subject, message) {
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
-  await sendEmail(adminEmail, subject, message);
-}
-
-// Templates d'emails
-const emailTemplates = {
-  subscriptionCreated: (customerEmail, planName, amount) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #ca8a04;">🎉 Nouvel abonnement !</h2>
-      <p>Bonjour,</p>
-      <p>Merci pour votre confiance ! Votre abonnement <strong>${planName}</strong> est maintenant actif.</p>
-      <div style="background: #fef3c7; padding: 20px; border-radius: 10px; margin: 20px 0;">
-        <p><strong>Détails de votre abonnement :</strong></p>
-        <ul>
-          <li>Formule : ${planName}</li>
-          <li>Montant : ${(amount / 100).toFixed(2)}€/mois</li>
-        </ul>
-      </div>
-      <p>Je vous contacterai très prochainement pour démarrer notre collaboration.</p>
-      <p>À très bientôt !</p>
-      <p style="color: #666;">— Elisa, Assistante Digitale</p>
-    </div>
-  `,
-
-  subscriptionCancelled: (customerEmail, planName) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #ca8a04;">Confirmation d'annulation</h2>
-      <p>Bonjour,</p>
-      <p>Votre abonnement <strong>${planName}</strong> a bien été annulé.</p>
-      <p>Merci pour la confiance que vous m'avez accordée. N'hésitez pas à revenir si vous avez besoin d'aide à l'avenir !</p>
-      <p>Si vous avez des questions ou souhaitez partager votre retour d'expérience, je reste disponible.</p>
-      <p style="color: #666;">— Elisa, Assistante Digitale</p>
-    </div>
-  `,
-
-  paymentFailed: (customerEmail, planName) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #dc2626;">⚠️ Échec de paiement</h2>
-      <p>Bonjour,</p>
-      <p>Le paiement pour votre abonnement <strong>${planName}</strong> n'a pas pu être effectué.</p>
-      <p>Veuillez vérifier vos informations de paiement pour éviter l'interruption de votre service.</p>
-      <p><a href="${process.env.FRONTEND_URL}/#services" style="background: #ca8a04; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Mettre à jour mes informations</a></p>
-      <p style="color: #666;">— Elisa, Assistante Digitale</p>
-    </div>
-  `,
-
-  adminNewSubscription: (customerEmail, planName, amount) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #22c55e;">🎉 Nouvel abonnement client !</h2>
-      <div style="background: #f0fdf4; padding: 20px; border-radius: 10px;">
-        <p><strong>Client :</strong> ${customerEmail}</p>
-        <p><strong>Formule :</strong> ${planName}</p>
-        <p><strong>Montant :</strong> ${(amount / 100).toFixed(2)}€/mois</p>
-        <p><strong>Date :</strong> ${new Date().toLocaleString('fr-FR')}</p>
-      </div>
-      <p>Pensez à contacter le client pour démarrer la collaboration !</p>
-    </div>
-  `,
-
-  adminCancellation: (customerEmail, planName) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #dc2626;">❌ Annulation d'abonnement</h2>
-      <div style="background: #fef2f2; padding: 20px; border-radius: 10px;">
-        <p><strong>Client :</strong> ${customerEmail}</p>
-        <p><strong>Formule annulée :</strong> ${planName}</p>
-        <p><strong>Date :</strong> ${new Date().toLocaleString('fr-FR')}</p>
-      </div>
-      <p>Vous pouvez contacter le client pour comprendre les raisons de l'annulation.</p>
-    </div>
-  `,
-
-  // Templates pour paiement horaire
-  hourlyPaymentClient: (customerEmail, serviceName, hours, hourlyRate, total) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #ca8a04;">🎉 Merci pour votre commande !</h2>
-      <p>Bonjour,</p>
-      <p>Votre paiement a bien été reçu. Voici le récapitulatif :</p>
-      <div style="background: #fef3c7; padding: 20px; border-radius: 10px; margin: 20px 0;">
-        <p><strong>Service :</strong> ${serviceName}</p>
-        <p><strong>Nombre d'heures :</strong> ${hours}h</p>
-        <p><strong>Tarif horaire :</strong> ${hourlyRate}€/h</p>
-        <p><strong>Total payé :</strong> ${total}€</p>
-      </div>
-      <p>Je vous contacterai très prochainement pour organiser notre collaboration et planifier les heures de travail.</p>
-      <p>À très bientôt !</p>
-      <p style="color: #666;">— Elisa, Assistante Digitale</p>
-    </div>
-  `,
-
-  adminHourlyPayment: (customerEmail, serviceName, hours, hourlyRate, total) => `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #22c55e;">💰 Nouveau paiement horaire !</h2>
-      <div style="background: #f0fdf4; padding: 20px; border-radius: 10px;">
-        <p><strong>Client :</strong> ${customerEmail}</p>
-        <p><strong>Service :</strong> ${serviceName}</p>
-        <p><strong>Heures achetées :</strong> ${hours}h</p>
-        <p><strong>Tarif :</strong> ${hourlyRate}€/h</p>
-        <p><strong>Total :</strong> ${total}€</p>
-        <p><strong>Date :</strong> ${new Date().toLocaleString('fr-FR')}</p>
-      </div>
-      <p>Pensez à contacter le client pour planifier les heures de travail !</p>
-    </div>
-  `
-};
-
-// Middleware
+// ====== MIDDLEWARE ======
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:4200',
   credentials: true
 }));
 
 // IMPORTANT: Le webhook doit recevoir le body brut AVANT le parsing JSON
-// On doit donc le mettre avant le middleware bodyParser.json()
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
     console.warn('⚠️  Webhook secret non configuré - Mode développement');
-    // En mode dev, on peut quand même traiter les événements
   }
 
   let event;
@@ -170,7 +53,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     if (webhookSecret) {
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } else {
-      // Mode développement sans vérification de signature
       event = JSON.parse(req.body.toString());
     }
   } catch (err) {
@@ -188,42 +70,39 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
         const customerEmail = session.customer_details?.email || session.customer_email;
         const amount = session.amount_total;
 
+        // Générer l'URL de la facture
+        const invoiceUrl = `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/invoice/${session.id}`;
+
         // Vérifier si c'est un paiement horaire ou un abonnement
         if (session.metadata?.type === 'hourly') {
-          // Paiement horaire
           const serviceName = session.metadata.serviceName;
           const hours = session.metadata.hours;
-          const hourlyRate = session.metadata.hourlyRate;
-          const total = session.metadata.totalAmount;
+          const hourlyRate = (amount / 100) / parseInt(hours);
+          const total = amount / 100;
 
           console.log(`✅ Paiement horaire réussi pour: ${customerEmail} - ${hours}h de ${serviceName}`);
 
-          // Email au client
           await sendEmail(
             customerEmail,
             `🎉 Confirmation de votre commande - ${hours}h de ${serviceName}`,
-            emailTemplates.hourlyPaymentClient(customerEmail, serviceName, hours, hourlyRate, total)
+            emailTemplates.hourlyPaymentClient(customerEmail, serviceName, hours, hourlyRate.toFixed(2), total.toFixed(2), invoiceUrl)
           );
 
-          // Email à l'admin
           await notifyAdmin(
             `💰 Nouveau paiement horaire: ${hours}h de ${serviceName}`,
-            emailTemplates.adminHourlyPayment(customerEmail, serviceName, hours, hourlyRate, total)
+            emailTemplates.adminHourlyPayment(customerEmail, serviceName, hours, hourlyRate.toFixed(2), total.toFixed(2))
           );
         } else {
-          // Abonnement classique
           const planName = session.metadata?.planName || 'Abonnement';
 
           console.log(`✅ Paiement réussi pour: ${customerEmail}`);
 
-          // Email au client
           await sendEmail(
             customerEmail,
             '🎉 Bienvenue ! Votre abonnement est activé',
-            emailTemplates.subscriptionCreated(customerEmail, planName, amount)
+            emailTemplates.subscriptionCreated(customerEmail, planName, amount, invoiceUrl)
           );
 
-          // Email à l'admin
           await notifyAdmin(
             `🎉 Nouvel abonnement: ${planName}`,
             emailTemplates.adminNewSubscription(customerEmail, planName, amount)
@@ -235,7 +114,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       case 'invoice.paid': {
         const invoice = event.data.object;
         console.log(`✅ Facture payée: ${invoice.id}`);
-        // Les renouvellements automatiques
         break;
       }
 
@@ -246,7 +124,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
         console.log(`❌ Échec de paiement pour: ${customerEmail}`);
 
-        // Email au client
         if (customerEmail) {
           await sendEmail(
             customerEmail,
@@ -255,7 +132,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
           );
         }
 
-        // Notification admin
         await notifyAdmin(
           `⚠️ Échec paiement: ${customerEmail}`,
           `<p>Échec de paiement pour ${customerEmail}</p><p>Plan: ${planName}</p>`
@@ -265,15 +141,12 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-
-        // Récupérer les infos du client
         const customer = await stripe.customers.retrieve(subscription.customer);
         const customerEmail = customer.email;
         const planName = subscription.items?.data[0]?.price?.nickname || 'Abonnement';
 
         console.log(`❌ Abonnement annulé pour: ${customerEmail}`);
 
-        // Email au client
         if (customerEmail) {
           await sendEmail(
             customerEmail,
@@ -282,7 +155,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
           );
         }
 
-        // Notification admin
         await notifyAdmin(
           `❌ Annulation: ${customerEmail}`,
           emailTemplates.adminCancellation(customerEmail, planName)
@@ -294,7 +166,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
         const subscription = event.data.object;
         console.log(`📝 Abonnement mis à jour: ${subscription.id}`);
 
-        // Vérifier si l'abonnement est prévu pour annulation
         if (subscription.cancel_at_period_end) {
           const customer = await stripe.customers.retrieve(subscription.customer);
           console.log(`⏳ Annulation programmée pour: ${customer.email}`);
@@ -330,7 +201,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configuration des plans
+// ====== CONFIGURATION DES PLANS ======
 const pricingPlans = {
   essential: {
     priceId: process.env.PRICE_ID_ESSENTIAL,
@@ -346,13 +217,32 @@ const pricingPlans = {
     priceId: process.env.PRICE_ID_PREMIUM,
     name: 'Pack Premium',
     mode: 'subscription'
-  },
-  hourly: {
-    priceId: process.env.PRICE_ID_HOURLY,
-    name: 'Tarif Horaire',
-    mode: 'payment'
   }
 };
+
+// Configuration des services horaires
+const hourlyServices = {
+  admin: {
+    priceId: process.env.PRICE_ID_HOURLY_ADMIN,
+    name: 'Gestion Administrative',
+    minHours: 1,
+    maxHours: 40
+  },
+  automation: {
+    priceId: process.env.PRICE_ID_HOURLY_AUTOMATION,
+    name: 'Automatisation & Design',
+    minHours: 1,
+    maxHours: 40
+  },
+  social: {
+    priceId: process.env.PRICE_ID_HOURLY_SOCIAL,
+    name: 'Gestion Réseaux Sociaux',
+    minHours: 1,
+    maxHours: 40
+  }
+};
+
+// ====== ROUTES API ======
 
 // Route de test
 app.get('/api/health', (req, res) => {
@@ -370,7 +260,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
   try {
     const { planId, customerEmail } = req.body;
 
-    // Validation
     if (!planId || !pricingPlans[planId]) {
       return res.status(400).json({
         error: 'Plan invalide',
@@ -388,40 +277,22 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
     console.log(`Création de session pour le plan: ${plan.name} (${planId})`);
 
-    // Configuration de la session Stripe
     const sessionConfig = {
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: plan.priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: plan.priceId, quantity: 1 }],
       mode: plan.mode,
       success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/#services`,
       locale: 'fr',
       billing_address_collection: 'required',
-
-      // Métadonnées pour tracking
-      metadata: {
-        planId: planId,
-        planName: plan.name
-      },
-
-      // Permet de pré-remplir l'email si fourni
+      metadata: { planId: planId, planName: plan.name },
       ...(customerEmail && { customer_email: customerEmail })
     };
 
-    // Créer la session
     const session = await stripe.checkout.sessions.create(sessionConfig);
-
     console.log(`Session créée avec succès: ${session.id}`);
 
-    res.json({
-      sessionId: session.id,
-      url: session.url
-    });
+    res.json({ sessionId: session.id, url: session.url });
 
   } catch (error) {
     console.error('Erreur lors de la création de la session:', error);
@@ -432,75 +303,55 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
-// Route pour créer une session de paiement horaire (paiement unique)
+// Route pour créer une session de paiement horaire
 app.post('/api/create-hourly-checkout-session', async (req, res) => {
   try {
-    const { serviceId, serviceName, hourlyRate, hours, customerEmail } = req.body;
+    const { serviceId, hours, customerEmail } = req.body;
 
-    // Validation
-    if (!serviceId || !serviceName || !hourlyRate || !hours) {
+    if (!serviceId || !hourlyServices[serviceId]) {
       return res.status(400).json({
-        error: 'Données manquantes',
-        required: ['serviceId', 'serviceName', 'hourlyRate', 'hours']
+        error: 'Service invalide',
+        availableServices: Object.keys(hourlyServices)
       });
     }
 
-    if (hours < 1 || hours > 40) {
+    const service = hourlyServices[serviceId];
+
+    if (!hours || hours < service.minHours || hours > service.maxHours) {
       return res.status(400).json({
-        error: 'Le nombre d\'heures doit être entre 1 et 40'
+        error: `Le nombre d'heures doit être entre ${service.minHours} et ${service.maxHours}`
       });
     }
 
-    // Calcul du montant total en centimes
-    const totalAmount = Math.round(hourlyRate * hours * 100);
+    if (!service.priceId || service.priceId.includes('VOTRE_PRICE_ID')) {
+      return res.status(500).json({
+        error: `Prix non configuré pour le service "${service.name}". Configurez PRICE_ID_HOURLY_${serviceId.toUpperCase()} dans le fichier .env`
+      });
+    }
 
-    console.log(`Création de session horaire: ${serviceName} - ${hours}h x ${hourlyRate}€ = ${totalAmount / 100}€`);
+    console.log(`Création de session horaire: ${service.name} - ${hours}h (Price ID: ${service.priceId})`);
 
-    // Configuration de la session Stripe (paiement unique)
     const sessionConfig = {
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: `${serviceName} - ${hours}h`,
-              description: `${hours} heure(s) de ${serviceName} à ${hourlyRate}€/h`,
-            },
-            unit_amount: totalAmount, // Montant total en centimes
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment', // Paiement unique (pas abonnement)
+      line_items: [{ price: service.priceId, quantity: hours }],
+      mode: 'payment',
       success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}&type=hourly`,
       cancel_url: `${process.env.FRONTEND_URL}/#services`,
       locale: 'fr',
       billing_address_collection: 'required',
-
-      // Métadonnées pour tracking
       metadata: {
         type: 'hourly',
         serviceId: serviceId,
-        serviceName: serviceName,
-        hourlyRate: hourlyRate.toString(),
-        hours: hours.toString(),
-        totalAmount: (totalAmount / 100).toString()
+        serviceName: service.name,
+        hours: hours.toString()
       },
-
-      // Permet de pré-remplir l'email si fourni
       ...(customerEmail && { customer_email: customerEmail })
     };
 
-    // Créer la session
     const session = await stripe.checkout.sessions.create(sessionConfig);
-
     console.log(`Session horaire créée avec succès: ${session.id}`);
 
-    res.json({
-      sessionId: session.id,
-      url: session.url
-    });
+    res.json({ sessionId: session.id, url: session.url });
 
   } catch (error) {
     console.error('Erreur lors de la création de la session horaire:', error);
@@ -511,7 +362,7 @@ app.post('/api/create-hourly-checkout-session', async (req, res) => {
   }
 });
 
-// Route pour récupérer les détails d'une session (après paiement)
+// Route pour récupérer les détails d'une session
 app.get('/api/checkout-session/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -534,7 +385,7 @@ app.get('/api/checkout-session/:sessionId', async (req, res) => {
   }
 });
 
-// Route pour créer une session Customer Portal (gestion abonnement)
+// Route pour créer une session Customer Portal
 app.post('/api/create-customer-portal-session', async (req, res) => {
   try {
     const { customerId, customerEmail } = req.body;
@@ -543,12 +394,8 @@ app.post('/api/create-customer-portal-session', async (req, res) => {
 
     if (customerId) {
       customer = { id: customerId };
-    }
-    else if (customerEmail) {
-      const customers = await stripe.customers.list({
-        email: customerEmail,
-        limit: 1
-      });
+    } else if (customerEmail) {
+      const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
 
       if (customers.data.length === 0) {
         return res.status(404).json({
@@ -574,9 +421,7 @@ app.post('/api/create-customer-portal-session', async (req, res) => {
 
     console.log(`Session Customer Portal créée: ${portalSession.id}`);
 
-    res.json({
-      url: portalSession.url
-    });
+    res.json({ url: portalSession.url });
 
   } catch (error) {
     console.error('Erreur lors de la création du Customer Portal:', error);
@@ -599,7 +444,184 @@ app.get('/api/plans', (req, res) => {
   res.json({ plans });
 });
 
-// Route de test email (pour vérifier la configuration)
+// Route pour obtenir les services horaires avec leurs prix depuis Stripe
+app.get('/api/hourly-services', async (req, res) => {
+  try {
+    const servicesWithPrices = [];
+
+    for (const [id, service] of Object.entries(hourlyServices)) {
+      let hourlyRate = null;
+      let configured = false;
+
+      if (service.priceId && !service.priceId.includes('VOTRE_PRICE_ID')) {
+        try {
+          const price = await stripe.prices.retrieve(service.priceId);
+          hourlyRate = price.unit_amount / 100;
+          configured = true;
+        } catch (err) {
+          console.error(`Erreur récupération prix pour ${id}:`, err.message);
+        }
+      }
+
+      servicesWithPrices.push({
+        id,
+        name: service.name,
+        hourlyRate,
+        minHours: service.minHours,
+        maxHours: service.maxHours,
+        configured
+      });
+    }
+
+    res.json({ services: servicesWithPrices });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des services:', error);
+    res.status(500).json({
+      error: 'Erreur lors de la récupération des services',
+      details: error.message
+    });
+  }
+});
+
+// Route pour générer et télécharger une facture PDF
+app.get('/api/invoice/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['line_items', 'customer_details']
+    });
+
+    if (session.payment_status !== 'paid') {
+      return res.status(400).json({
+        error: 'Paiement non complété',
+        message: 'La facture ne peut être générée que pour un paiement complété'
+      });
+    }
+
+    const invoiceNumber = generateInvoiceNumber();
+    const customerDetails = session.customer_details || {};
+    const customerAddress = customerDetails.address
+      ? `${customerDetails.address.line1 || ''}\n${customerDetails.address.postal_code || ''} ${customerDetails.address.city || ''}\n${customerDetails.address.country || ''}`
+      : '';
+
+    const items = [];
+    let totalHT = 0;
+
+    if (session.metadata?.type === 'hourly') {
+      const hours = parseInt(session.metadata.hours) || 1;
+      const serviceName = session.metadata.serviceName || 'Prestation horaire';
+      const unitPrice = (session.amount_total / 100) / hours;
+
+      items.push({
+        description: serviceName,
+        quantity: hours,
+        unitPrice: unitPrice,
+        total: session.amount_total / 100
+      });
+      totalHT = session.amount_total / 100;
+    } else {
+      const planName = session.metadata?.planName || 'Abonnement';
+      items.push({
+        description: planName,
+        quantity: 1,
+        unitPrice: session.amount_total / 100,
+        total: session.amount_total / 100
+      });
+      totalHT = session.amount_total / 100;
+    }
+
+    const invoiceData = {
+      invoiceNumber,
+      customerName: customerDetails.name || 'Client',
+      customerEmail: customerDetails.email || session.customer_email,
+      customerAddress,
+      items,
+      totalHT,
+      date: new Date().toLocaleDateString('fr-FR')
+    };
+
+    const { filePath, fileName } = await generateInvoicePDF(invoiceData);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('end', () => {
+      setTimeout(() => {
+        fs.unlink(filePath, (err) => {
+          if (err) console.error('Erreur suppression facture:', err);
+        });
+      }, 5000);
+    });
+
+  } catch (error) {
+    console.error('Erreur génération facture:', error);
+    res.status(500).json({
+      error: 'Erreur lors de la génération de la facture',
+      details: error.message
+    });
+  }
+});
+
+// Route pour générer une facture manuellement (admin)
+app.post('/api/generate-invoice', async (req, res) => {
+  try {
+    const { customerName, customerEmail, customerAddress, items, date } = req.body;
+
+    if (!customerEmail || !items || items.length === 0) {
+      return res.status(400).json({
+        error: 'Données manquantes',
+        required: ['customerEmail', 'items']
+      });
+    }
+
+    const invoiceNumber = generateInvoiceNumber();
+    const totalHT = items.reduce((sum, item) => sum + (item.total || item.quantity * item.unitPrice), 0);
+
+    const invoiceData = {
+      invoiceNumber,
+      customerName: customerName || 'Client',
+      customerEmail,
+      customerAddress: customerAddress || '',
+      items: items.map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        unitPrice: item.unitPrice,
+        total: item.total || item.quantity * item.unitPrice
+      })),
+      totalHT,
+      date: date || new Date().toLocaleDateString('fr-FR')
+    };
+
+    const { filePath, fileName } = await generateInvoicePDF(invoiceData);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('end', () => {
+      setTimeout(() => {
+        fs.unlink(filePath, (err) => {
+          if (err) console.error('Erreur suppression facture:', err);
+        });
+      }, 5000);
+    });
+
+  } catch (error) {
+    console.error('Erreur génération facture manuelle:', error);
+    res.status(500).json({
+      error: 'Erreur lors de la génération de la facture',
+      details: error.message
+    });
+  }
+});
+
+// Route de test email
 app.post('/api/test-email', async (req, res) => {
   const { email } = req.body;
 
@@ -620,7 +642,7 @@ app.post('/api/test-email', async (req, res) => {
   }
 });
 
-// Démarrage du serveur
+// ====== DÉMARRAGE DU SERVEUR ======
 app.listen(PORT, () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
@@ -628,15 +650,19 @@ app.listen(PORT, () => {
   console.log(`💳 Mode Stripe: ${process.env.STRIPE_MODE || 'test'}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
   console.log(`📧 Email configuré: ${process.env.EMAIL_USER ? '✅' : '❌'}`);
+  console.log(`👤 Admin Email: ${process.env.ADMIN_EMAIL || process.env.EMAIL_USER}`);
   console.log(`🔗 Webhook secret: ${process.env.STRIPE_WEBHOOK_SECRET ? '✅' : '❌'}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('📋 Endpoints disponibles:');
   console.log('   GET  /api/health');
   console.log('   GET  /api/plans');
+  console.log('   GET  /api/hourly-services');
   console.log('   POST /api/create-checkout-session');
   console.log('   POST /api/create-hourly-checkout-session');
   console.log('   GET  /api/checkout-session/:sessionId');
   console.log('   POST /api/create-customer-portal-session');
+  console.log('   GET  /api/invoice/:sessionId');
+  console.log('   POST /api/generate-invoice');
   console.log('   POST /api/webhook');
   console.log('   POST /api/test-email');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

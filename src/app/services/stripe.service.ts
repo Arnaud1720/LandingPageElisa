@@ -5,8 +5,17 @@ export interface PricingPlan {
   id: string;
   name: string;
   price: number;
-  stripePriceId: string; // ID du prix Stripe que vous créerez dans votre dashboard
+  stripePriceId: string;
   description: string;
+}
+
+export interface HourlyService {
+  id: string;
+  name: string;
+  hourlyRate: number | null;
+  minHours: number;
+  maxHours: number;
+  configured: boolean;
 }
 
 @Injectable({
@@ -62,6 +71,21 @@ export class StripeService {
 
   getPricingPlans(): PricingPlan[] {
     return this.pricingPlans;
+  }
+
+  // Récupérer les services horaires avec leurs prix depuis Stripe
+  async getHourlyServices(): Promise<HourlyService[]> {
+    try {
+      const response = await fetch('http://localhost:3000/api/hourly-services');
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des services');
+      }
+      const data = await response.json();
+      return data.services;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des services horaires:', error);
+      return [];
+    }
   }
 
   async redirectToCheckout(planId: string): Promise<void> {
@@ -155,10 +179,9 @@ export class StripeService {
   }
 
   // Paiement horaire - permet de payer un nombre d'heures spécifique pour un service
+  // Le prix est récupéré depuis Stripe (pas besoin de le passer en paramètre)
   async redirectToHourlyCheckout(
     serviceId: string,
-    serviceName: string,
-    hourlyRate: number,
     hours: number
   ): Promise<void> {
     if (!this.stripe) {
@@ -183,8 +206,6 @@ export class StripeService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceId,
-          serviceName,
-          hourlyRate,
           hours
         })
       });

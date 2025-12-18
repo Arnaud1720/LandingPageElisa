@@ -1,3 +1,15 @@
+/**
+ * ============================================================================
+ * Elilouche Assistante Digitale - Styles globaux
+ * ============================================================================
+ *
+ * @copyright 2025 nonodevco - Tous droits réservés
+ * @author    nonodevco (https://nonodevco.com)
+ * @license   Propriétaire - Reproduction interdite
+ *
+ * ============================================================================
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm start)",
+      "Bash(powershell -ExecutionPolicy Bypass -File update-colors.ps1)",
+      "Bash(ng g component:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -Command:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
